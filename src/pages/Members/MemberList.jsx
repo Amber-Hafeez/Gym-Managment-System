@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMembers } from '../../hooks/useMembers'
 
 function MemberList() {
+  
   const [search, setSearch] = useState('')
   const { data: members, isLoading, isError, error } = useMembers()
 
@@ -24,7 +25,7 @@ function MemberList() {
         </Link>
       </header>
 
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-5xl mx-auto p-6">
         <div className="flex justify-between items-center mb-4 gap-3">
           <input
             type="text"
@@ -49,27 +50,49 @@ function MemberList() {
           ) : filtered.length === 0 ? (
             <p className="p-6 text-zinc-500 text-sm">No members found.</p>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-zinc-800 text-zinc-400 text-left">
-                <tr>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Phone</th>
-                  <th className="px-4 py-3">Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((m) => (
-                  <tr
-                    key={m.id}
-                    className="border-t border-zinc-800 hover:bg-zinc-800 cursor-pointer"
-                  >
-                    <td className="px-4 py-3 font-medium text-white">{m.full_name}</td>
-                    <td className="px-4 py-3 text-zinc-400">{m.phone || '—'}</td>
-                    <td className="px-4 py-3 text-zinc-400">{m.join_date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+           <table className="w-full text-sm">
+  <thead className="bg-zinc-800 text-zinc-400 text-left">
+    <tr>
+      <th className="px-4 py-3">Name</th>
+      <th className="px-4 py-3">Phone</th>
+      <th className="px-4 py-3">Plan</th>
+      <th className="px-4 py-3">Joined</th>
+      <th className="px-4 py-3">Status</th>
+      <th className="px-4 py-3 text-right">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {filtered.map((m) => (
+      <tr key={m.id} className="border-t border-zinc-800 hover:bg-zinc-800">
+        <td className="px-4 py-3 font-medium text-white">{m.full_name}</td>
+        <td className="px-4 py-3 text-zinc-400">{m.phone || '—'}</td>
+        <td className="px-4 py-3 text-zinc-400">{m.plan || '—'}</td>
+        <td className="px-4 py-3 text-zinc-400">{m.join_date}</td>
+        <td className="px-4 py-3">
+          <span
+            className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+              m.status === 'Active'
+                ? 'bg-emerald-500/15 text-emerald-400'
+                : m.status === 'Expired'
+                ? 'bg-red-500/15 text-red-400'
+                : 'bg-zinc-700/50 text-zinc-300'
+            }`}
+          >
+            {m.status || 'Active'}
+          </span>
+        </td>
+        <td className="px-4 py-3 text-right">
+          <Link
+            to={`/members/${m.id}/edit`}
+            className="text-emerald-400 hover:text-emerald-300 text-sm font-medium"
+          >
+            Edit
+          </Link>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
           )}
         </div>
       </main>

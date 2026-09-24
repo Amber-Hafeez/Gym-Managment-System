@@ -19,9 +19,12 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-8">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Gym Management</h1>
-          <p className="text-zinc-500 text-sm mt-1">Sign in to your account</p>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-extrabold tracking-widest text-emerald-400">
+            FIT<span className="text-white">ZONE</span>
+          </h1>
+          <p className="text-zinc-400 text-sm mt-2">Gym & Fitness Club Management</p>
+          <p className="text-zinc-500 text-xs mt-1">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
