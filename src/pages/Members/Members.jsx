@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 import "./Members.css";
 
 const PLANS = ["Monthly", "Quarterly", "Half-Yearly", "Yearly"];

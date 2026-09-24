@@ -8,6 +8,7 @@ import MemberList from './pages/Members/MemberList'
 import AddMember from './pages/Members/AddMember'
 import MemberProfile from './pages/Members/MemberProfile'
 import EditMember from './pages/Members/EditMember'
+import PlansList from './pages/Plans/PlansList'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -38,6 +39,7 @@ function AppRoutes() {
         <Route path="/members/new" element={<AddMember />} />
         <Route path="/members/:id" element={<MemberProfile />} />
         <Route path="/members/:id/edit" element={<EditMember />} />
+        <Route path="/plans" element={<PlansList />} />
         <Route path="/trainers" element={<ComingSoon title="Trainers" />} />
         <Route path="/payments" element={<ComingSoon title="Payments" />} />
         <Route path="/attendance" element={<ComingSoon title="Attendance" />} />

@@ -64,7 +64,11 @@ function MemberList() {
   <tbody>
     {filtered.map((m) => (
       <tr key={m.id} className="border-t border-zinc-800 hover:bg-zinc-800">
-        <td className="px-4 py-3 font-medium text-white">{m.full_name}</td>
+        <td className="px-4 py-3 font-medium text-white">
+  <Link to={`/members/${m.id}`} className="hover:text-emerald-400">
+    {m.full_name}
+  </Link>
+</td>
         <td className="px-4 py-3 text-zinc-400">{m.phone || '—'}</td>
         <td className="px-4 py-3 text-zinc-400">{m.plan || '—'}</td>
         <td className="px-4 py-3 text-zinc-400">{m.join_date}</td>
