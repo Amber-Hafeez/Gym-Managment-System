@@ -1,13 +1,15 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { useAuth } from '../context/AuthContextTemp'
 
 const links = [
-  { to: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { to: '/members', label: 'Members', icon: '👥' },
-  { to: '/plans', label: 'Plans', icon: '📋' },
-  { to: '/trainers', label: 'Trainers', icon: '🏋️' },
-  { to: '/payments', label: 'Payments', icon: '💳' },
-  { to: '/attendance', label: 'Attendance', icon: '✅' },
+  { to: '/dashboard', label: 'Dashboard', icon: '🏠', roles: ['admin', 'trainer'] },
+  { to: '/members', label: 'Members', icon: '👥', roles: ['admin'] },
+  { to: '/plans', label: 'Plans', icon: '📋', roles: ['admin'] },
+  { to: '/classes', label: 'Classes', icon: '🗓️', roles: ['admin', 'trainer'] },
+  { to: '/manage-trainers', label: 'Manage Trainers', icon: '🏋️', roles: ['admin'] },
+  { to: '/payments', label: 'Payments', icon: '💳', roles: ['admin'] },
+  { to: '/attendance', label: 'Attendance', icon: '✅', roles: ['admin', 'trainer'] },
 ]
 
 const linkCls = ({ isActive }) =>
@@ -18,6 +20,11 @@ const linkCls = ({ isActive }) =>
   }`
 
 function Layout() {
+  const { role } = useAuth()
+  console.log('Layout role:', role)
+  const normalizedRole = role?.toLowerCase()
+  const visibleLinks = links.filter((l) => l.roles.includes(normalizedRole))
+
   return (
     <div className="min-h-screen bg-black text-white md:flex">
       {/* Sidebar (desktop) */}
@@ -30,12 +37,14 @@ function Layout() {
             <p className="text-lg font-extrabold tracking-widest text-emerald-400 leading-none">
               FIT<span className="text-white">ZONE</span>
             </p>
-            <p className="text-[11px] text-zinc-500 mt-1">Gym & Fitness Club</p>
+            <p className="text-[11px] text-zinc-500 mt-1">
+              {normalizedRole === 'trainer' ? 'Trainer Panel' : 'Admin Panel'}
+            </p>
           </div>
         </div>
 
         <nav className="space-y-1 flex-1">
-          {links.map((l) => (
+          {visibleLinks.map((l) => (
             <NavLink key={l.to} to={l.to} className={linkCls}>
               <span>{l.icon}</span>
               {l.label}
@@ -58,7 +67,7 @@ function Layout() {
             FIT<span className="text-white">ZONE</span>
           </p>
           <nav className="flex gap-1 overflow-x-auto py-2">
-            {links.map((l) => (
+            {visibleLinks.map((l) => (
               <NavLink key={l.to} to={l.to} className={linkCls}>
                 {l.label}
               </NavLink>

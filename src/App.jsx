@@ -9,12 +9,22 @@ import AddMember from './pages/Members/AddMember'
 import MemberProfile from './pages/Members/MemberProfile'
 import EditMember from './pages/Members/EditMember'
 import PlansList from './pages/Plans/PlansList'
+import ClassSchedule from './pages/Classes/ClassSchedule'
+import MyClasses from './pages/Classes/MyClasses'
+import ManageTrainers from './pages/Trainers/ManageTrainers'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-black text-zinc-500">Loading...</div>
   if (!user) return <Navigate to="/login" replace />
   return children
+}
+
+// Shows the right Classes view depending on the logged-in profile's role
+function ClassesRoute() {
+  const { role } = useAuth()
+  if (user?.role === 'Trainer') return <MyClasses />
+  return <ClassSchedule />
 }
 
 function AppRoutes() {
@@ -40,7 +50,8 @@ function AppRoutes() {
         <Route path="/members/:id" element={<MemberProfile />} />
         <Route path="/members/:id/edit" element={<EditMember />} />
         <Route path="/plans" element={<PlansList />} />
-        <Route path="/trainers" element={<ComingSoon title="Trainers" />} />
+        <Route path="/classes" element={<ClassesRoute />} />
+        <Route path="/manage-trainers" element={<ManageTrainers />} />
         <Route path="/payments" element={<ComingSoon title="Payments" />} />
         <Route path="/attendance" element={<ComingSoon title="Attendance" />} />
       </Route>
