@@ -7,7 +7,7 @@ export function useClasses() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('classes')
-        .select('*, profiles(full_name)')
+        .select('*')
         .order('day_of_week');
       if (error) throw error;
       return data;

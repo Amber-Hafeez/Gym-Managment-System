@@ -22,7 +22,7 @@ function ProtectedRoute({ children }) {
 
 // Shows the right Classes view depending on the logged-in profile's role
 function ClassesRoute() {
-  const { role } = useAuth()
+  const { user } = useAuth()
   if (user?.role === 'Trainer') return <MyClasses />
   return <ClassSchedule />
 }

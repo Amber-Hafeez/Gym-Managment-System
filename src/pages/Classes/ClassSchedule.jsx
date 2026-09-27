@@ -10,7 +10,7 @@ export default function ClassSchedule() {
   const saveClass = useSaveClass()
   const cancelClass = useCancelClass()
 
-  const empty = { name: '', trainer_id: '', day_of_week: 'Monday', start_time: '', end_time: '', capacity: 10 }
+  const empty = { name: '', trainer_id: '', day_of_week: 'Monday', start_time: '', end_time: '', capacity: 10, }
   const [form, setForm] = useState(empty)
   const [editingId, setEditingId] = useState(null)
   const [showForm, setShowForm] = useState(false)
