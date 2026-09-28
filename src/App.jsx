@@ -10,6 +10,7 @@ import MemberProfile from './pages/Members/MemberProfile'
 import EditMember from './pages/Members/EditMember'
 import PlansList from './pages/Plans/PlansList'
 import ClassSchedule from './pages/Classes/ClassSchedule'
+import ClassBooking from './pages/Classes/ClassBooking'
 import MyClasses from './pages/Classes/MyClasses'
 import ManageTrainers from './pages/Trainers/ManageTrainers'
 
@@ -51,6 +52,8 @@ function AppRoutes() {
         <Route path="/members/:id/edit" element={<EditMember />} />
         <Route path="/plans" element={<PlansList />} />
         <Route path="/classes" element={<ClassesRoute />} />
+        <Route path="/class-booking" element={<ClassBooking />} />
+        <Route path="/my-classes" element={<MyClasses />} />
         <Route path="/manage-trainers" element={<ManageTrainers />} />
         <Route path="/payments" element={<ComingSoon title="Payments" />} />
         <Route path="/attendance" element={<ComingSoon title="Attendance" />} />

@@ -6,14 +6,16 @@ const links = [
   { to: '/dashboard', label: 'Dashboard', icon: '🏠', roles: ['admin', 'trainer'] },
   { to: '/members', label: 'Members', icon: '👥', roles: ['admin'] },
   { to: '/plans', label: 'Plans', icon: '📋', roles: ['admin'] },
-  { to: '/classes', label: 'Classes', icon: '🗓️', roles: ['admin', 'trainer'] },
+  { to: '/classes', label: 'Classes', icon: '🗓️', roles: ['admin'] },
+  { to: '/class-booking', label: 'Class Booking', icon: '🎟️', roles: ['admin'] },
+  { to: '/my-classes', label: 'My Classes', icon: '🧘', roles: ['trainer'] },
   { to: '/manage-trainers', label: 'Manage Trainers', icon: '🏋️', roles: ['admin'] },
   { to: '/payments', label: 'Payments', icon: '💳', roles: ['admin'] },
   { to: '/attendance', label: 'Attendance', icon: '✅', roles: ['admin', 'trainer'] },
 ]
 
 const linkCls = ({ isActive }) =>
-  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition ${
     isActive
       ? 'bg-emerald-500/15 text-emerald-400'
       : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
@@ -21,7 +23,6 @@ const linkCls = ({ isActive }) =>
 
 function Layout() {
   const { role } = useAuth()
-  console.log('Layout role:', role)
   const normalizedRole = role?.toLowerCase()
   const visibleLinks = links.filter((l) => l.roles.includes(normalizedRole))
 
@@ -43,10 +44,10 @@ function Layout() {
           </div>
         </div>
 
-        <nav className="space-y-1 flex-1">
+        <nav className="space-y-1 flex-1 overflow-y-auto">
           {visibleLinks.map((l) => (
             <NavLink key={l.to} to={l.to} className={linkCls}>
-              <span>{l.icon}</span>
+              <span className="text-base">{l.icon}</span>
               {l.label}
             </NavLink>
           ))}
@@ -63,12 +64,21 @@ function Layout() {
       <div className="flex-1 min-w-0">
         {/* Top nav (mobile) */}
         <div className="md:hidden bg-zinc-900 border-b border-zinc-800 px-4 pt-3">
-          <p className="text-lg font-extrabold tracking-widest text-emerald-400">
-            FIT<span className="text-white">ZONE</span>
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-extrabold tracking-widest text-emerald-400">
+              FIT<span className="text-white">ZONE</span>
+            </p>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="text-xs text-zinc-400 hover:text-red-400"
+            >
+              ⎋ Log out
+            </button>
+          </div>
           <nav className="flex gap-1 overflow-x-auto py-2">
             {visibleLinks.map((l) => (
               <NavLink key={l.to} to={l.to} className={linkCls}>
+                <span>{l.icon}</span>
                 {l.label}
               </NavLink>
             ))}
