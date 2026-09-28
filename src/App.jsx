@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContextTemp'
 import Layout from './components/Layout'
 import ComingSoon from './components/ComingSoon'
 import Login from './pages/Login/Login'
+import Landing from './pages/Landing/Landing'
 import Dashboard from './pages/Dashboard/Dashboard'
 import MemberList from './pages/Members/MemberList'
 import AddMember from './pages/Members/AddMember'
@@ -59,7 +60,7 @@ function AppRoutes() {
         <Route path="/attendance" element={<ComingSoon title="Attendance" />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Landing />} />
     </Routes>
   )
 }
