@@ -69,7 +69,7 @@ function TrainerSignup() {
       experience_years: form.experience_years ? Number(form.experience_years) : null,
     })
 
-    // Approval se pehle trainer ko logout kar do
+    // Log out the user after signup, so they can't log in until approved
     await supabase.auth.signOut()
     setLoading(false)
 
