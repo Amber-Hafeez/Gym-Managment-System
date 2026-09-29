@@ -8,7 +8,7 @@ export function useTrainers() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .ilike('role', 'Trainer')
+        .ilike('role', 'trainer')
       if (error) throw error
       return data
     },
@@ -18,12 +18,13 @@ export function useTrainers() {
 export function useCreateTrainer() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ full_name, email, password, phone }) => {
+    mutationFn: async ({ full_name, email, password, phone, status}) => {
       const { data, error } = await supabase.rpc('create_trainer', {
         trainer_name: full_name,
         trainer_email: email,
         trainer_password: password,
         trainer_phone: phone,
+        trainer_status: status,
       })
       if (error) throw error
       return data

@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContextTemp'
 import Layout from './components/Layout'
 import ComingSoon from './components/ComingSoon'
 import Login from './pages/Login/Login'
+import TrainerSignup from './pages/Auth/TrainerSignup'
 import Landing from './pages/Landing/Landing'
 import Dashboard from './pages/Dashboard/Dashboard'
 import MemberList from './pages/Members/MemberList'
@@ -24,8 +25,8 @@ function ProtectedRoute({ children }) {
 
 // Shows the right Classes view depending on the logged-in profile's role
 function ClassesRoute() {
-  const { user } = useAuth()
-  if (user?.role === 'Trainer') return <MyClasses />
+  const { role } = useAuth()
+  if ( role?.toLowerCase() === 'trainer') return <MyClasses />
   return <ClassSchedule />
 }
 
@@ -35,8 +36,18 @@ function AppRoutes() {
   return (
     <Routes>
       <Route
+        path="/"
+        element={loading ? null : user ? <Navigate to="/dashboard" replace /> : <Landing />}
+      />
+
+      <Route
         path="/login"
         element={loading ? null : user ? <Navigate to="/dashboard" replace /> : <Login />}
+      />
+
+      <Route
+        path="/signup"
+        element={loading ? null : user ? <Navigate to="/dashboard" replace /> : <TrainerSignup />}
       />
 
       <Route
@@ -60,7 +71,7 @@ function AppRoutes() {
         <Route path="/attendance" element={<ComingSoon title="Attendance" />} />
       </Route>
 
-      <Route path="/" element={<Landing />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

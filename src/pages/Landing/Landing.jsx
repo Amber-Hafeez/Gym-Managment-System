@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContextTemp'
 
@@ -40,19 +40,30 @@ const roles = [
 ]
 
 const plans = [
-  { name: 'Monthly', price: 'Rs. 5,000', per: '/ month', perks: ['Full gym access', 'Class booking', 'Check-in streaks'], hot: false },
-  { name: 'Quarterly', price: 'Rs. 13,000', per: '/ 3 months', perks: ['Everything in Monthly', 'Save Rs. 2,000', 'Priority class booking'], hot: true },
-  { name: 'Yearly', price: 'Rs. 48,000', per: '/ year', perks: ['Everything in Quarterly', 'Save Rs. 12,000', 'Best value'], hot: false },
+  { name: 'Monthly', price: 'Rs. 3,000', per: '/ 30 days', perks: ['1 month access','Full gym access', 'Class booking', 'Check-in streaks'], hot: false },
+  { name: 'Quarterly', price: 'Rs. 8,000', per: '/ 90 days', perks: ['3 months access', 'Everything in Monthly', 'Save Rs. 2,000', 'Priority class booking'], hot: true },
+  { name: 'Half-Quarterly', price: 'Rs. 15,000', per: '/ 180 days', perks: ['6 months access', 'Everything in Quarterly', 'Save Rs. 3,000', 'Best value'], hot: false },
+  { name: 'Yearly', price: 'Rs. 28,000', per: '/ 365 days', perks: ['12 months access', 'Everything in Half-Quarterly', 'Save Rs. 5,000', 'Best value'], hot: false },
 ]
 
 function Landing() {
-  const { role } = useAuth()
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
-  const loggedIn = Boolean(role)
+  const loggedIn = Boolean(user)
+
+  // If the side menu is open, prevent scrolling the background. Reset on unmount.
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
 
   const goTo = (id) => {
     setOpen(false)
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    }, 250)
   }
 
   return (
@@ -67,62 +78,92 @@ function Landing() {
             </span>
           </button>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {loggedIn ? (
+              <Link to="/dashboard" className="hidden sm:inline-block px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 transition">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="hidden sm:inline-block px-4 py-2 rounded-lg text-sm font-semibold text-zinc-300 hover:text-white transition">
+                  Log In
+                </Link>
+                <Link to="/signup" className="hidden sm:inline-block px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 transition">
+                  Sign Up
+                </Link>
+              </>
+            )}
+
+            {/* MENU BUTTON */}
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              className="w-10 h-10 grid place-items-center rounded-lg border border-zinc-800 hover:border-emerald-500 hover:text-emerald-400 transition"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* SIDE MENU (drawer) */}
+      <div className={`fixed inset-0 z-[60] ${open ? '' : 'pointer-events-none'}`}>
+        <div
+          onClick={() => setOpen(false)}
+          className={`absolute inset-0 bg-black/70 transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}
+        />
+        <aside
+          className={`absolute top-0 right-0 h-full w-72 max-w-[85%] bg-zinc-950 border-l border-zinc-800 p-6 flex flex-col transition-transform duration-300 ${
+            open ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-xl font-extrabold tracking-widest text-emerald-400">
+              FIT<span className="text-white">ZONE</span>
+            </span>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="w-9 h-9 grid place-items-center rounded-lg text-xl hover:bg-zinc-800"
+            >
+              ✕
+            </button>
+          </div>
+
+          <nav className="space-y-1">
             {navLinks.map((l) => (
-              <button key={l.id} onClick={() => goTo(l.id)} className="text-sm text-zinc-400 hover:text-emerald-400 transition">
+              <button
+                key={l.id}
+                onClick={() => goTo(l.id)}
+                className="block w-full text-left px-4 py-3 rounded-lg text-zinc-300 hover:bg-zinc-900 hover:text-emerald-400 transition"
+              >
                 {l.label}
               </button>
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="mt-auto space-y-3 pt-6 border-t border-zinc-800">
             {loggedIn ? (
-              <Link to="/dashboard" className="px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 transition">
+              <Link to="/dashboard" className="block text-center py-3 rounded-lg bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition">
                 Go to Dashboard
               </Link>
             ) : (
               <>
-                <Link to="/login" className="px-4 py-2 rounded-lg text-sm font-semibold text-zinc-300 hover:text-white transition">
+                <Link to="/login" className="block text-center py-3 rounded-lg border border-zinc-700 font-semibold hover:bg-zinc-900 transition">
                   Log In
                 </Link>
-                <button onClick={() => goTo('join')} className="px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 transition">
+                <Link to="/signup" className="block text-center py-3 rounded-lg bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition">
                   Sign Up
-                </button>
+                </Link>
               </>
             )}
           </div>
-
-          <button onClick={() => setOpen(!open)} className="md:hidden text-2xl" aria-label="Menu">
-            {open ? '✕' : '☰'}
-          </button>
-        </div>
-
-        {open && (
-          <div className="md:hidden bg-zinc-900 border-t border-zinc-800 px-4 py-4 space-y-1">
-            {navLinks.map((l) => (
-              <button key={l.id} onClick={() => goTo(l.id)} className="block w-full text-left px-3 py-2.5 rounded-lg text-zinc-300 hover:bg-zinc-800">
-                {l.label}
-              </button>
-            ))}
-            <div className="flex gap-3 pt-3">
-              {loggedIn ? (
-                <Link to="/dashboard" className="flex-1 text-center py-2.5 rounded-lg bg-emerald-500 text-black font-semibold">
-                  Go to Dashboard
-                </Link>
-              ) : (
-                <>
-                  <Link to="/login" className="flex-1 text-center py-2.5 rounded-lg border border-zinc-700 font-semibold">
-                    Log In
-                  </Link>
-                  <button onClick={() => goTo('join')} className="flex-1 py-2.5 rounded-lg bg-emerald-500 text-black font-semibold">
-                    Sign Up
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </header>
+        </aside>
+      </div>
 
       {/* HERO */}
       <section className="relative overflow-hidden">
@@ -160,7 +201,7 @@ function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="max-w-6xl mx-auto px-4 py-20">
+      <section id="features" className="max-w-6xl mx-auto px-4 py-20 scroll-mt-16">
         <div className="text-center mb-12">
           <p className="text-emerald-400 text-sm font-semibold tracking-wider">FEATURES</p>
           <h2 className="text-3xl md:text-4xl font-extrabold mt-2">Everything your gym needs</h2>
@@ -177,7 +218,7 @@ function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="bg-zinc-900/50 border-y border-zinc-800">
+      <section id="how" className="bg-zinc-900/50 border-y border-zinc-800 scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <div className="text-center mb-12">
             <p className="text-emerald-400 text-sm font-semibold tracking-wider">HOW IT WORKS</p>
@@ -196,7 +237,7 @@ function Landing() {
       </section>
 
       {/* ROLES */}
-      <section id="roles" className="max-w-6xl mx-auto px-4 py-20">
+      <section id="roles" className="max-w-6xl mx-auto px-4 py-20 scroll-mt-16">
         <div className="text-center mb-12">
           <p className="text-emerald-400 text-sm font-semibold tracking-wider">BUILT FOR YOUR TEAM</p>
           <h2 className="text-3xl md:text-4xl font-extrabold mt-2">The right access for everyone</h2>
@@ -220,18 +261,18 @@ function Landing() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="bg-zinc-900/50 border-y border-zinc-800">
+      <section id="pricing" className="bg-zinc-900/50 border-y border-zinc-800 scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <div className="text-center mb-12">
             <p className="text-emerald-400 text-sm font-semibold tracking-wider">MEMBERSHIP PLANS</p>
             <h2 className="text-3xl md:text-4xl font-extrabold mt-2">Simple plans, fair prices</h2>
           </div>
-          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-6 sm:grid-cols-2 max-w-3xl mx-auto">
             {plans.map((p) => (
               <div
                 key={p.name}
                 className={`rounded-2xl p-7 border ${
-                  p.hot ? 'bg-emerald-500/10 border-emerald-500 md:scale-105' : 'bg-black border-zinc-800'
+                  p.hot ? 'bg-emerald-500/10 border-emerald-500' : 'bg-black border-zinc-800'
                 }`}
               >
                 {p.hot && <span className="text-[11px] font-bold bg-emerald-500 text-black rounded-full px-3 py-1">MOST POPULAR</span>}
@@ -258,7 +299,7 @@ function Landing() {
       </section>
 
       {/* CTA */}
-      <section id="join" className="max-w-4xl mx-auto px-4 py-20 text-center">
+      <section id="join" className="max-w-4xl mx-auto px-4 py-20 text-center scroll-mt-16">
         <div className="bg-gradient-to-br from-emerald-500/20 to-zinc-900 border border-emerald-500/30 rounded-3xl p-10 md:p-14">
           <h2 className="text-3xl md:text-4xl font-extrabold">Ready to join FITZONE?</h2>
           <p className="text-zinc-400 mt-3 max-w-xl mx-auto">
