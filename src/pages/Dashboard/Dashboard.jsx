@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
+import { useTodayCheckInCount } from '../../hooks/useAttendance'
 
 function Dashboard() {
   const [members, setMembers] = useState([])
@@ -19,6 +20,7 @@ function Dashboard() {
   }, [])
 
   const count = (s) => members.filter((m) => m.status === s).length
+  const {data: todayCount = 0} = useTodayCheckInCount()
 
   const stats = [
     { label: 'Total Members', value: members.length, icon: '👥' },

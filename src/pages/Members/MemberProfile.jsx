@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom"
 import { useMember } from "../../hooks/useMember"
 import { useDeleteMember } from "../../hooks/useDeleteMember"
 import AssignPlan from './AssignPlan'
+import AttendanceHistory from "../../components/AttendanceHistory"
 
 function MemberProfile() {
   const { id } = useParams()
@@ -70,6 +71,7 @@ function MemberProfile() {
             </div>
 
             <AssignPlan memberId={id} />
+            <AttendanceHistory memberId={member.id} />
           </>
         )}
       </main>

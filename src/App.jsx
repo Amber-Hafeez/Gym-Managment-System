@@ -15,6 +15,7 @@ import ClassSchedule from './pages/Classes/ClassSchedule'
 import ClassBooking from './pages/Classes/ClassBooking'
 import MyClasses from './pages/Classes/MyClasses'
 import ManageTrainers from './pages/Trainers/ManageTrainers'
+import CheckIn from './pages/Attendance/CheckIn'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -68,7 +69,7 @@ function AppRoutes() {
         <Route path="/my-classes" element={<MyClasses />} />
         <Route path="/manage-trainers" element={<ManageTrainers />} />
         <Route path="/payments" element={<ComingSoon title="Payments" />} />
-        <Route path="/attendance" element={<ComingSoon title="Attendance" />} />
+        <Route path="/attendance" element={<CheckIn />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
