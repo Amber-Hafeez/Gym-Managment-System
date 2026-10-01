@@ -15,6 +15,7 @@ import ClassSchedule from './pages/Classes/ClassSchedule'
 import ClassBooking from './pages/Classes/ClassBooking'
 import MyClasses from './pages/Classes/MyClasses'
 import ManageTrainers from './pages/Trainers/ManageTrainers'
+import Payments from './pages/Payments/Payments'
 import CheckIn from './pages/Attendance/CheckIn'
 
 function ProtectedRoute({ children }) {
@@ -68,7 +69,7 @@ function AppRoutes() {
         <Route path="/class-booking" element={<ClassBooking />} />
         <Route path="/my-classes" element={<MyClasses />} />
         <Route path="/manage-trainers" element={<ManageTrainers />} />
-        <Route path="/payments" element={<ComingSoon title="Payments" />} />
+        <Route path ="/payments" element ={<Payments />} />
         <Route path="/attendance" element={<CheckIn />} />
       </Route>
 

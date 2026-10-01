@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { useTodayCheckInCount } from '../../hooks/useAttendance'
+import { usePaymentStats } from '../../hooks/usePayments'
+import { useTrainerCount } from '../../hooks/useTrainerCount'
+import { formatPKR } from '../../utils/paymentHelpers'
 
 function Dashboard() {
   const [members, setMembers] = useState([])
@@ -20,13 +23,19 @@ function Dashboard() {
   }, [])
 
   const count = (s) => members.filter((m) => m.status === s).length
-  const {data: todayCount = 0} = useTodayCheckInCount()
+  const { data: todayCount = 0 } = useTodayCheckInCount()
+  const { data: payStats } = usePaymentStats()
+  const { data: trainerCount } = useTrainerCount()
 
   const stats = [
     { label: 'Total Members', value: members.length, icon: '👥' },
     { label: 'Active Members', value: count('Active'), icon: '🔥' },
-    { label: 'Trainers', value: '—', icon: '🏋️' },
-    { label: 'Revenue', value: '—', icon: '💳' },
+    { label: 'Trainers', value: trainerCount ?? '—', icon: '🏋️' },
+    {
+      label: "This Month's Revenue",
+      value: payStats ? formatPKR(payStats.monthRevenue) : '—',
+      icon: '💳',
+    },
   ]
 
   return (
@@ -48,7 +57,7 @@ function Dashboard() {
         {stats.map((s) => (
           <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
             <div className="text-xl">{s.icon}</div>
-            <p className="text-3xl font-bold text-emerald-400 mt-2">{s.value}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-emerald-400 mt-2">{s.value}</p>
             <p className="text-zinc-500 text-xs mt-1">{s.label}</p>
           </div>
         ))}

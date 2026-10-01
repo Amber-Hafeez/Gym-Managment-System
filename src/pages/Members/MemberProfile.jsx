@@ -4,6 +4,8 @@ import { useMember } from "../../hooks/useMember"
 import { useDeleteMember } from "../../hooks/useDeleteMember"
 import AssignPlan from './AssignPlan'
 import AttendanceHistory from "../../components/AttendanceHistory"
+import PaymentHistory from "../../components/PaymentHistory"
+
 
 function MemberProfile() {
   const { id } = useParams()
@@ -72,6 +74,10 @@ function MemberProfile() {
 
             <AssignPlan memberId={id} />
             <AttendanceHistory memberId={member.id} />
+
+            <div className="mt-6">
+              <PaymentHistory memberId={member.id} />
+            </div>
           </>
         )}
       </main>
