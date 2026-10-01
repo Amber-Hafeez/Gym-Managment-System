@@ -5,6 +5,8 @@ import { useTodayCheckInCount } from '../../hooks/useAttendance'
 import { usePaymentStats } from '../../hooks/usePayments'
 import { useTrainerCount } from '../../hooks/useTrainerCount'
 import { formatPKR } from '../../utils/paymentHelpers'
+import ImageBanner from '../../components/ImageBanner'
+import { IMAGES } from '../../assets/images'
 
 function Dashboard() {
   const [members, setMembers] = useState([])
@@ -40,18 +42,23 @@ function Dashboard() {
 
   return (
     <main className="p-6 max-w-6xl">
-      <div className="flex justify-between items-center mb-6 gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-zinc-500 text-sm">Welcome to FITZONE</p>
+      <ImageBanner src={IMAGES.gymDark} alt="FITZONE gym" className="rounded-2xl mb-6 border border-zinc-800">
+        <div className="p-6 sm:p-8 flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
+            <p className="text-zinc-300 text-sm mt-1">Welcome to FITZONE — train hard, manage smart.</p>
+            <p className="mt-3 inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
+              Today's check-ins: {todayCount}
+            </p>
+          </div>
+          <Link
+            to="/members/new"
+            className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap"
+          >
+            + Add Member
+          </Link>
         </div>
-        <Link
-          to="/members/new"
-          className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap"
-        >
-          + Add Member
-        </Link>
-      </div>
+      </ImageBanner>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
