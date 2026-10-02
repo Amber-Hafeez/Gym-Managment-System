@@ -5,18 +5,93 @@ import { useTodayCheckInCount } from '../../hooks/useAttendance'
 import { usePaymentStats } from '../../hooks/usePayments'
 import { useTrainerCount } from '../../hooks/useTrainerCount'
 import { formatPKR } from '../../utils/paymentHelpers'
-import ImageBanner from '../../components/ImageBanner'
 import { IMAGES } from '../../assets/images'
+
+function PhotoStatCard({ icon, value, label, sub, image, color, accent, decor }) {
+  const [failed, setFailed] = useState(false)
+  return (
+    <div
+      className="relative min-h-[150px] overflow-hidden rounded-2xl border border-white/10"
+      style={{ background: color }}
+    >
+      {image && !failed && (
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          onError={() => setFailed(true)}
+          className="absolute inset-y-0 right-0 h-full w-3/4 object-cover"
+        />
+      )}
+      <div
+        className="absolute inset-0"
+        style={{ background: `linear-gradient(90deg, ${color} 25%, ${color}cc 55%, ${color}40 100%)` }}
+      />
+      {decor && <div className="absolute bottom-4 right-4">{decor}</div>}
+      <div className="relative p-4">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
+          style={{ background: accent }}
+        >
+          {icon}
+        </div>
+        <p className="mt-3 break-words text-2xl font-bold text-white sm:text-3xl">{value}</p>
+        <p className="text-sm font-medium text-white">{label}</p>
+        <p className="text-xs text-zinc-300">{sub}</p>
+      </div>
+    </div>
+  )
+}
+
+function Avatar({ name, src }) {
+  const [failed, setFailed] = useState(false)
+  const initials = (name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('')
+
+  if (src && !failed) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        onError={() => setFailed(true)}
+        className="h-11 w-11 shrink-0 rounded-full border border-zinc-700 object-cover"
+      />
+    )
+  }
+  return (
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/15 text-sm font-bold text-emerald-400">
+      {initials}
+    </div>
+  )
+}
+
+const revenueDecor = (
+  <div className="flex items-end gap-1.5">
+    {[20, 32, 46, 64].map((h) => (
+      <div
+        key={h}
+        className="w-4 rounded-t bg-gradient-to-t from-amber-700 to-amber-400"
+        style={{ height: h }}
+      />
+    ))}
+  </div>
+)
 
 function Dashboard() {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [heroFailed, setHeroFailed] = useState(false)
+  const [adminName, setAdminName] = useState('')
 
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from('members')
-        .select('id, full_name, plan, status, join_date, created_at')
+        .select('id, full_name, plan, status, join_date, created_at, photo_url')
         .order('created_at', { ascending: false })
       setMembers(data || [])
       setLoading(false)
@@ -24,100 +99,152 @@ function Dashboard() {
     load()
   }, [])
 
+  useEffect(() => {
+    const loadName = async () => {
+      const { data } = await supabase.auth.getUser()
+      const uid = data?.user?.id
+      if (!uid) return
+      const { data: p } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', uid)
+        .maybeSingle()
+      setAdminName(p?.full_name ? p.full_name.split(' ')[0] : '')
+    }
+    loadName()
+  }, [])
+
   const count = (s) => members.filter((m) => m.status === s).length
   const { data: todayCount = 0 } = useTodayCheckInCount()
   const { data: payStats } = usePaymentStats()
   const { data: trainerCount } = useTrainerCount()
 
-  const stats = [
-    { label: 'Total Members', value: members.length, icon: '👥' },
-    { label: 'Active Members', value: count('Active'), icon: '🔥' },
-    { label: 'Trainers', value: trainerCount ?? '—', icon: '🏋️' },
+  const cards = [
     {
-      label: "This Month's Revenue",
-      value: payStats ? formatPKR(payStats.monthRevenue) : '—',
+      icon: '👥', value: members.length, label: 'Total Members', sub: 'Active & Inactive',
+      image: IMAGES.womanGym, color: '#022c22', accent: '#10b981',
+    },
+    {
+      icon: '🔥', value: count('Active'), label: 'Active Members', sub: 'Currently working out',
+      image: IMAGES.manDumbbell, color: '#2e1065', accent: '#9333ea',
+    },
+    {
+      icon: '🏋️', value: trainerCount ?? '—', label: 'Trainers', sub: 'Certified professionals',
+      image: IMAGES.gymMachines, color: '#082f49', accent: '#0ea5e9',
+    },
+    {
       icon: '💳',
+      value: payStats ? formatPKR(payStats.monthRevenue) : '—',
+      label: "This Month's Revenue",
+      sub: 'Total from memberships',
+      image: null, color: '#451a03', accent: '#d97706', decor: revenueDecor,
     },
   ]
 
   return (
-    <main className="p-6 max-w-6xl">
-      <ImageBanner src={IMAGES.gymDark} alt="FITZONE gym" className="rounded-2xl mb-6 border border-zinc-800">
-        <div className="p-6 sm:p-8 flex flex-wrap justify-between items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-zinc-300 text-sm mt-1">Welcome to FITZONE — train hard, manage smart.</p>
-            <p className="mt-3 inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
-              Today's check-ins: {todayCount}
-            </p>
-          </div>
-          <Link
-            to="/members/new"
-            className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap"
-          >
-            + Add Member
-          </Link>
-        </div>
-      </ImageBanner>
+    <main className="max-w-6xl p-4 sm:p-6">
+      {/* Greeting */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">
+          Hello{adminName ? ',' : ''} <span className="text-emerald-400">{adminName}</span> 👋
+        </h1>
+        <p className="text-sm text-zinc-400">Welcome to FITZONE — your fitness journey, made easier.</p>
+      </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-            <div className="text-xl">{s.icon}</div>
-            <p className="text-2xl sm:text-3xl font-bold text-emerald-400 mt-2">{s.value}</p>
-            <p className="text-zinc-500 text-xs mt-1">{s.label}</p>
+      {/* Hero banner */}
+      <section className="relative mb-4 overflow-hidden rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-emerald-950">
+        {!heroFailed && (
+          <img
+            src={IMAGES.gymRack}
+            alt=""
+            onError={() => setHeroFailed(true)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/10" />
+        <div className="relative max-w-md p-6 sm:p-8">
+          <p className="text-xs font-semibold tracking-[0.3em] text-emerald-400">BETTER BODY</p>
+          <h2 className="mt-2 text-4xl font-extrabold leading-tight text-white">
+            STRONGER <span className="text-emerald-400">YOU</span>
+          </h2>
+          <p className="mt-2 text-sm text-zinc-300">Consistent effort brings real results.</p>
+          <p className="mt-3 inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
+            Today's check-ins: {todayCount}
+          </p>
+          <div className="mt-4">
+            <Link
+              to="/members/new"
+              className="inline-block rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400"
+            >
+              + Add Member
+            </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Photo stat cards */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {cards.map((c) => (
+          <PhotoStatCard key={c.label} {...c} />
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-800">
-            <h2 className="font-semibold">Recent Members</h2>
+      {/* Recent members + overview */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
+            <h2 className="font-semibold text-white">Recent Members</h2>
             <Link to="/members" className="text-sm text-emerald-400 hover:text-emerald-300">
               View All →
             </Link>
           </div>
           {loading ? (
-            <p className="p-4 text-zinc-500 text-sm">Loading...</p>
+            <p className="p-4 text-sm text-zinc-500">Loading...</p>
           ) : members.length === 0 ? (
-            <p className="p-4 text-zinc-500 text-sm">No members yet.</p>
+            <p className="p-4 text-sm text-zinc-500">No members yet.</p>
           ) : (
             <ul>
               {members.slice(0, 5).map((m) => (
-                <li
-                  key={m.id}
-                  className="flex justify-between items-center px-4 py-3 border-t border-zinc-800 first:border-t-0"
-                >
-                  <div>
-                    <p className="text-sm font-medium">{m.full_name}</p>
-                    <p className="text-xs text-zinc-500">{m.plan || '—'} · {m.join_date}</p>
-                  </div>
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      m.status === 'Active'
-                        ? 'bg-emerald-500/15 text-emerald-400'
-                        : m.status === 'Expired'
-                        ? 'bg-red-500/15 text-red-400'
-                        : 'bg-zinc-700/50 text-zinc-300'
-                    }`}
+                <li key={m.id} className="border-t border-zinc-800 first:border-t-0">
+                  <Link
+                    to={'/members/' + m.id}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50"
                   >
-                    {m.status || 'Active'}
-                  </span>
+                    <Avatar name={m.full_name} src={m.photo_url} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-white">{m.full_name}</p>
+                      <p className="text-xs text-zinc-500">{m.plan || '—'} · {m.join_date}</p>
+                    </div>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        m.status === 'Active'
+                          ? 'bg-emerald-500/15 text-emerald-400'
+                          : m.status === 'Expired'
+                          ? 'bg-red-500/15 text-red-400'
+                          : 'bg-zinc-700/50 text-zinc-300'
+                      }`}
+                    >
+                      {m.status || 'Active'}
+                    </span>
+                    <span className="text-zinc-500">→</span>
+                  </Link>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-          <h2 className="font-semibold mb-4">Gym Overview</h2>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+          <h2 className="mb-4 font-semibold text-white">Gym Overview</h2>
           {[
             ['Active', count('Active'), 'text-emerald-400'],
             ['Inactive', count('Inactive'), 'text-zinc-300'],
             ['Expired', count('Expired'), 'text-red-400'],
           ].map(([label, value, cls]) => (
-            <div key={label} className="flex justify-between py-2 border-t border-zinc-800 first:border-t-0 text-sm">
+            <div
+              key={label}
+              className="flex justify-between border-t border-zinc-800 py-2 text-sm first:border-t-0"
+            >
               <span className="text-zinc-400">{label} members</span>
               <span className={`font-semibold ${cls}`}>{value}</span>
             </div>
