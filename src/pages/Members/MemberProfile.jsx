@@ -5,6 +5,8 @@ import { useDeleteMember } from "../../hooks/useDeleteMember"
 import AssignPlan from './AssignPlan'
 import AttendanceHistory from "../../components/AttendanceHistory"
 import PaymentHistory from "../../components/PaymentHistory"
+import StreakBadge from "../../components/StreakBadge"
+import MemberFeeReminder from "../../components/MemberFeeReminder"
 
 
 function MemberProfile() {
@@ -36,12 +38,16 @@ function MemberProfile() {
           <p className="text-red-400 text-sm">Error: {error.message}</p>
         ) : (
           <>
+            <MemberFeeReminder memberId={member.id} />
+
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow p-6">
               <h2 className="text-xl font-bold text-white mb-4">{member.full_name}</h2>
               <div className="space-y-2 text-sm">
                 <p className="text-zinc-400">Phone: <span className="text-white">{member.phone || '-'}</span></p>
                 <p className="text-zinc-400">Join Date: <span className="text-white">{member.join_date}</span></p>
               </div>
+
+              <StreakBadge memberId={member.id} />
 
               <div className="mt-6 flex gap-2">
                 <button onClick={() => navigate('/members/' + id + '/edit')} className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-lg text-sm font-semibold">

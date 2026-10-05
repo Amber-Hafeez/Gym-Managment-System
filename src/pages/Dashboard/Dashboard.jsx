@@ -4,14 +4,16 @@ import { supabase } from '../../lib/supabaseClient'
 import { useTodayCheckInCount } from '../../hooks/useAttendance'
 import { usePaymentStats } from '../../hooks/usePayments'
 import { useTrainerCount } from '../../hooks/useTrainerCount'
+import { useFeeReminders, expiresWhen } from '../../hooks/useFeeReminders'
 import { formatPKR } from '../../utils/paymentHelpers'
 import { IMAGES } from '../../assets/images'
+import FeeReminderBanner from '../../components/FeeReminderBanner'
 
 function PhotoStatCard({ icon, value, label, sub, image, color, accent, decor }) {
   const [failed, setFailed] = useState(false)
   return (
     <div
-      className="relative min-h-[150px] overflow-hidden rounded-2xl border border-white/10"
+      className="relative min-h-[170px] overflow-hidden rounded-2xl border border-white/10"
       style={{ background: color }}
     >
       {image && !failed && (
@@ -20,14 +22,15 @@ function PhotoStatCard({ icon, value, label, sub, image, color, accent, decor })
           alt=""
           loading="lazy"
           onError={() => setFailed(true)}
-          className="absolute inset-y-0 right-0 h-full w-3/4 object-cover"
+          className="absolute inset-y-0 right-0 h-full w-4/5 object-cover"
+          style={{ objectPosition: 'center 25%' }}
         />
       )}
       <div
         className="absolute inset-0"
-        style={{ background: `linear-gradient(90deg, ${color} 25%, ${color}cc 55%, ${color}40 100%)` }}
+        style={{ background: `linear-gradient(90deg, ${color} 15%, ${color}99 45%, ${color}1a 100%)` }}
       />
-      {decor && <div className="absolute bottom-4 right-4">{decor}</div>}
+      {decor && <div className="absolute right-4 top-4">{decor}</div>}
       <div className="relative p-4">
         <div
           className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
@@ -118,6 +121,7 @@ function Dashboard() {
   const { data: todayCount = 0 } = useTodayCheckInCount()
   const { data: payStats } = usePaymentStats()
   const { data: trainerCount } = useTrainerCount()
+  const { data: expiringSoon = [] } = useFeeReminders(7)
 
   const cards = [
     {
@@ -182,6 +186,9 @@ function Dashboard() {
         </div>
       </section>
 
+      {/* Fee reminder banner (expiring within 3 days) */}
+      <FeeReminderBanner />
+
       {/* Photo stat cards */}
       <div className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {cards.map((c) => (
@@ -189,7 +196,7 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Recent members + overview */}
+      {/* Recent members + side panels */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
@@ -234,21 +241,51 @@ function Dashboard() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-          <h2 className="mb-4 font-semibold text-white">Gym Overview</h2>
-          {[
-            ['Active', count('Active'), 'text-emerald-400'],
-            ['Inactive', count('Inactive'), 'text-zinc-300'],
-            ['Expired', count('Expired'), 'text-red-400'],
-          ].map(([label, value, cls]) => (
-            <div
-              key={label}
-              className="flex justify-between border-t border-zinc-800 py-2 text-sm first:border-t-0"
-            >
-              <span className="text-zinc-400">{label} members</span>
-              <span className={`font-semibold ${cls}`}>{value}</span>
-            </div>
-          ))}
+        <div className="space-y-4">
+          {/* Expiring in next 7 days */}
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+            <h2 className="mb-3 font-semibold text-white">Expiring Soon (7 days)</h2>
+            {expiringSoon.length === 0 ? (
+              <p className="text-sm text-zinc-500">No memberships expiring this week.</p>
+            ) : (
+              <ul className="space-y-2">
+                {expiringSoon.slice(0, 6).map((r) => (
+                  <li key={r.memberId}>
+                    <Link
+                      to={'/members/' + r.memberId}
+                      className="flex items-center justify-between gap-2 rounded-lg bg-zinc-800/60 px-3 py-2 text-sm hover:bg-zinc-800"
+                    >
+                      <span className="truncate text-white">{r.name}</span>
+                      <span
+                        className={`shrink-0 text-xs font-semibold ${
+                          r.daysLeft <= 3 ? 'text-amber-400' : 'text-zinc-400'
+                        }`}
+                      >
+                        {expiresWhen(r.daysLeft)}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+            <h2 className="mb-4 font-semibold text-white">Gym Overview</h2>
+            {[
+              ['Active', count('Active'), 'text-emerald-400'],
+              ['Inactive', count('Inactive'), 'text-zinc-300'],
+              ['Expired', count('Expired'), 'text-red-400'],
+            ].map(([label, value, cls]) => (
+              <div
+                key={label}
+                className="flex justify-between border-t border-zinc-800 py-2 text-sm first:border-t-0"
+              >
+                <span className="text-zinc-400">{label} members</span>
+                <span className={`font-semibold ${cls}`}>{value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </main>
