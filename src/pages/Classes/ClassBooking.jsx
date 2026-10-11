@@ -3,7 +3,9 @@ import { supabase } from '../../lib/supabaseClient'
 
 function ClassBooking() {
   const [members, setMembers] = useState([])
-  const [memberId, setMemberId] = useState('')
+  const [memberId, setMemberId] = useState(
+    () => localStorage.getItem('classBookingMemberId') || ''
+  )
   const [classes, setClasses] = useState([])
   const [bookings, setBookings] = useState([])
   const [msg, setMsg] = useState('')
@@ -28,7 +30,6 @@ function ClassBooking() {
 
     load()
 
-    // Live seat count (Supabase Realtime)
     const channel = supabase
       .channel('class-bookings-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'class_bookings' }, load)
@@ -40,12 +41,20 @@ function ClassBooking() {
     }
   }, [load])
 
+  const changeMember = (id) => {
+    setMemberId(id)
+    localStorage.setItem('classBookingMemberId', id)
+  }
+
+  const nameOf = (id) => members.find((m) => m.id === id)?.full_name || 'Member'
+
   const seatsTaken = (id) =>
     bookings.filter((b) => b.class_id === id && b.status === 'booked').length
   const waitCount = (id) =>
     bookings.filter((b) => b.class_id === id && b.status === 'waitlisted').length
   const myBooking = (id) =>
     bookings.find((b) => b.class_id === id && b.member_id === memberId)
+  const classBookings = (id) => bookings.filter((b) => b.class_id === id)
 
   const book = async (classId) => {
     if (!memberId) return setMsg('⚠️ Please select a member first.')
@@ -60,11 +69,16 @@ function ClassBooking() {
         ? '✅ Booked successfully!'
         : '⏳ Class is full — member added to the waitlist.'
     )
+    await load()
   }
 
   const cancel = async (bookingId) => {
-    await supabase.from('class_bookings').delete().eq('id', bookingId)
-    setMsg('Booking cancelled.')
+    const { error } = await supabase
+      .from('class_bookings')
+      .delete()
+      .eq('id', bookingId)
+    setMsg(error ? `❌ ${error.message}` : 'Booking cancelled.')
+    await load()
   }
 
   return (
@@ -76,7 +90,7 @@ function ClassBooking() {
 
       <select
         value={memberId}
-        onChange={(e) => setMemberId(e.target.value)}
+        onChange={(e) => changeMember(e.target.value)}
         className="w-full md:w-80 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
       >
         <option value="">— Select member —</option>
@@ -102,6 +116,7 @@ function ClassBooking() {
           const taken = seatsTaken(c.id)
           const full = taken >= c.capacity
           const mine = myBooking(c.id)
+          const list = classBookings(c.id)
 
           return (
             <div
@@ -167,6 +182,43 @@ function ClassBooking() {
                   {full ? '⏳ Join Waitlist' : '✅ Book Seat'}
                 </button>
               )}
+
+              <div className="border-t border-zinc-800 pt-3">
+                <p className="text-xs font-semibold text-zinc-400 mb-2">
+                  Booked members ({list.length})
+                </p>
+                {list.length === 0 ? (
+                  <p className="text-xs text-zinc-600">No bookings yet.</p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {list.map((b) => (
+                      <li
+                        key={b.id}
+                        className="flex items-center justify-between text-xs"
+                      >
+                        <span className="text-zinc-300">{nameOf(b.member_id)}</span>
+                        <span className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-full capitalize ${
+                              b.status === 'booked'
+                                ? 'bg-emerald-500/15 text-emerald-400'
+                                : 'bg-amber-500/15 text-amber-400'
+                            }`}
+                          >
+                            {b.status}
+                          </span>
+                          <button
+                            onClick={() => cancel(b.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )
         })}

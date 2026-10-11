@@ -18,7 +18,7 @@ export function useTrainers() {
 export function useCreateTrainer() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ full_name, email, password, phone, status}) => {
+    mutationFn: async ({ full_name, email, password, phone, status }) => {
       const { data, error } = await supabase.rpc('create_trainer', {
         trainer_name: full_name,
         trainer_email: email,
@@ -54,6 +54,22 @@ export function useDeleteTrainer() {
       const { error } = await supabase.rpc('delete_trainer', { trainer_id: trainerId })
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['trainers'] }),
+    // Remove button dabate hi trainer screen se hata do
+    onMutate: async (trainerId) => {
+      await qc.cancelQueries({ queryKey: ['trainers'] })
+      const previous = qc.getQueryData(['trainers'])
+      qc.setQueryData(['trainers'], (old) =>
+        (old || []).filter((t) => t.id !== trainerId)
+      )
+      return { previous }
+    },
+    // Agar delete fail ho to trainer wapas dikha do
+    onError: (_err, _trainerId, context) => {
+      if (context?.previous) qc.setQueryData(['trainers'], context.previous)
+    },
+    // Aakhir mein database se dobara sahi list le lo
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['trainers'] })
+    },
   })
 }

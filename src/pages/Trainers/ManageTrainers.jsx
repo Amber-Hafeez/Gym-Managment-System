@@ -66,6 +66,7 @@ export default function ManageTrainers() {
   const [showPass, setShowPass] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [removeError, setRemoveError] = useState('')
 
   const inputClass =
     'w-full px-3 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition'
@@ -156,6 +157,15 @@ export default function ManageTrainers() {
     setShowForm(true)
   }
 
+  const handleRemove = (t) => {
+    if (!window.confirm(`Remove trainer "${t.full_name}"?`)) return
+    setRemoveError('')
+    deleteTrainer.mutate(t.id, {
+      onSuccess: () => queryClient.invalidateQueries(),
+      onError: (err) => setRemoveError(err.message),
+    })
+  }
+
   const closeForm = () => {
     setForm(empty)
     setEditingId(null)
@@ -232,6 +242,12 @@ export default function ManageTrainers() {
       </div>
 
       {/* TRAINERS TABLE */}
+      {removeError && (
+        <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 mb-4">
+          {removeError}
+        </p>
+      )}
+
       {isLoading ? (
         <p className="text-zinc-500 text-sm">Loading...</p>
       ) : (
@@ -263,7 +279,13 @@ export default function ManageTrainers() {
                   </td>
                   <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
                     <button onClick={() => startEdit(t)} className="text-zinc-300 hover:text-white text-xs font-medium">Edit</button>
-                    <button onClick={() => deleteTrainer.mutate(t.id)} className="text-red-400 hover:text-red-300 text-xs font-medium">Remove</button>
+                    <button
+                      onClick={() => handleRemove(t)}
+                      disabled={deleteTrainer.isPending}
+                      className="text-red-400 hover:text-red-300 text-xs font-medium disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
                   </td>
                 </tr>
               ))}

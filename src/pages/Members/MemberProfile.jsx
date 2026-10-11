@@ -15,6 +15,7 @@ function MemberProfile() {
   const { data: member, isLoading, isError, error } = useMember(id)
   const deleteMember = useDeleteMember()
   const [confirming, setConfirming] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
 
   function handleDelete() {
     deleteMember.mutate(id, {
@@ -41,7 +42,22 @@ function MemberProfile() {
             <MemberFeeReminder memberId={member.id} />
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow p-6">
-              <h2 className="text-xl font-bold text-white mb-4">{member.full_name}</h2>
+              <div className="flex items-center gap-4 mb-4">
+                {member.photo_url && !imgFailed ? (
+                  <img
+                    src={member.photo_url}
+                    alt={member.full_name}
+                    onError={() => setImgFailed(true)}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-emerald-500"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-emerald-500/15 border-2 border-emerald-500 text-emerald-400 text-3xl font-bold grid place-items-center">
+                    {(member.full_name || '?').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <h2 className="text-xl font-bold text-white">{member.full_name}</h2>
+              </div>
+
               <div className="space-y-2 text-sm">
                 <p className="text-zinc-400">Phone: <span className="text-white">{member.phone || '-'}</span></p>
                 <p className="text-zinc-400">Join Date: <span className="text-white">{member.join_date}</span></p>

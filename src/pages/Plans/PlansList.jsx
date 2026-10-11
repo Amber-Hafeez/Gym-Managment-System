@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { usePaymentPlans } from '../../hooks/usePayments'
+import { usePlans, useUpdatePlan } from '../../hooks/usePlans'
 import { formatPKR } from '../../utils/paymentHelpers'
 import { IMAGES, PLAN_PHOTOS } from '../../assets/images'
 
-// Photos for each plan come from images.js
+// Photos used when a plan has no image link saved in the database
 const PLAN_IMAGES = PLAN_PHOTOS
 const FALLBACK_IMAGES = Object.values(PLAN_PHOTOS)
 
-// Edit these lists to change the feature chips shown on each plan
+// Used only when a plan has no features saved in the database
 const PLAN_FEATURES = {
   Monthly: ['Gym Access', 'Group Classes', 'Basic Support'],
   Quarterly: ['Gym Access', 'Group Classes', 'Priority Support'],
@@ -22,6 +22,17 @@ const FEATURE_ICON = {
   'Priority Support': '🛡️',
   'Nutrition Guide': '🍎',
   'Personal Training': '💪',
+}
+
+function getFeatures(plan) {
+  if (Array.isArray(plan.features) && plan.features.length > 0) return plan.features
+  return PLAN_FEATURES[plan.name] ?? DEFAULT_FEATURES
+}
+
+// Adds an icon only when the feature text does not already start with one
+function chipText(f) {
+  const startsWithEmoji = /^[^\x00-\x7F]/.test(f)
+  return startsWithEmoji ? f : (FEATURE_ICON[f] ?? '✔️') + ' ' + f
 }
 
 function accessText(days) {
@@ -49,8 +60,8 @@ function PlanPhoto({ src, alt, className = '' }) {
   )
 }
 
-function PlanCard({ plan, image, onDetails }) {
-  const features = PLAN_FEATURES[plan.name] ?? DEFAULT_FEATURES
+function PlanCard({ plan, image, onDetails, onEdit }) {
+  const features = getFeatures(plan)
   const days = Number(plan.duration_days) || 0
   const active = plan.is_active !== false
 
@@ -83,21 +94,29 @@ function PlanCard({ plan, image, onDetails }) {
           {features.map((f) => (
             <span
               key={f}
-              className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-zinc-200"
+              className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-zinc-200"
             >
-              <span>{FEATURE_ICON[f] ?? '✔️'}</span>
-              {f}
+              {chipText(f)}
             </span>
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={onDetails}
-          className="mt-3 rounded-full border border-emerald-400 px-4 py-1.5 text-sm font-semibold text-emerald-300 hover:bg-emerald-500/10"
-        >
-          View Details →
-        </button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onDetails}
+            className="rounded-full border border-emerald-400 px-4 py-1.5 text-sm font-semibold text-emerald-300 hover:bg-emerald-500/10"
+          >
+            View Details →
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-black hover:bg-emerald-400"
+          >
+            ✏️ Edit
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -105,7 +124,7 @@ function PlanCard({ plan, image, onDetails }) {
 
 function DetailsModal({ plan, image, onClose }) {
   if (!plan) return null
-  const features = PLAN_FEATURES[plan.name] ?? DEFAULT_FEATURES
+  const features = getFeatures(plan)
   const days = Number(plan.duration_days) || 0
 
   return (
@@ -125,9 +144,7 @@ function DetailsModal({ plan, image, onClose }) {
           <ul className="mt-4 space-y-2 text-sm text-zinc-200">
             <li>📅 Duration: {days} days ({accessText(days)})</li>
             {features.map((f) => (
-              <li key={f}>
-                {FEATURE_ICON[f] ?? '✔️'} {f}
-              </li>
+              <li key={f}>{chipText(f)}</li>
             ))}
           </ul>
           <button
@@ -143,15 +160,168 @@ function DetailsModal({ plan, image, onClose }) {
   )
 }
 
+const inputClass =
+  'w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500'
+
+function EditModal({ plan, onClose }) {
+  const updatePlan = useUpdatePlan()
+  const [price, setPrice] = useState(String(plan.price ?? ''))
+  const [days, setDays] = useState(String(plan.duration_days ?? ''))
+  const [description, setDescription] = useState(plan.description ?? '')
+  const [featuresText, setFeaturesText] = useState(getFeatures(plan).join('\n'))
+  const [imageUrl, setImageUrl] = useState(plan.image_url ?? '')
+  const [isActive, setIsActive] = useState(plan.is_active !== false)
+  const [message, setMessage] = useState('')
+
+  const handleSave = async () => {
+    const priceNum = Number(price)
+    const daysNum = Number(days)
+
+    if (!priceNum || priceNum <= 0) {
+      setMessage('Please enter a valid price.')
+      return
+    }
+    if (!daysNum || daysNum <= 0) {
+      setMessage('Please enter a valid duration in days.')
+      return
+    }
+
+    const features = featuresText
+      .split('\n')
+      .map((f) => f.trim())
+      .filter(Boolean)
+
+    try {
+      await updatePlan.mutateAsync({
+        id: plan.id,
+        values: {
+          price: priceNum,
+          duration_days: daysNum,
+          description: description.trim(),
+          features: features,
+          image_url: imageUrl.trim() || null,
+          is_active: isActive,
+        },
+      })
+      onClose()
+    } catch (err) {
+      setMessage(err.message || 'Could not save. Only admins can edit plans.')
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-4 sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-900 p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-bold text-white">Edit {plan.name} Plan</h2>
+        <p className="mt-1 text-xs text-zinc-500">
+          Plan name cannot be changed because members are linked to it.
+        </p>
+
+        <div className="mt-4 space-y-3">
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Price (Rs.)</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Duration (days)</label>
+            <input
+              type="number"
+              value={days}
+              onChange={(e) => setDays(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Description</label>
+            <textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Features (one per line)</label>
+            <textarea
+              rows={4}
+              value={featuresText}
+              onChange={(e) => setFeaturesText(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Image link (optional)</label>
+            <input
+              type="text"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://..."
+              className={inputClass}
+            />
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-zinc-200">
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
+            Active (shown on the landing page)
+          </label>
+        </div>
+
+        {message && <p className="mt-3 text-sm text-red-400">{message}</p>}
+
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-zinc-700 py-2.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={updatePlan.isPending}
+            className="flex-1 rounded-xl bg-emerald-500 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-60"
+          >
+            {updatePlan.isPending ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Plans() {
-  const { data: plans = [], isLoading, error } = usePaymentPlans()
+  const { data: plans = [], isLoading, error } = usePlans()
   const [tab, setTab] = useState('All Plans')
   const [selected, setSelected] = useState(null)
+  const [editing, setEditing] = useState(null)
   const [heroFailed, setHeroFailed] = useState(false)
 
   const tabs = ['All Plans', ...plans.map((p) => p.name)]
   const visible = tab === 'All Plans' ? plans : plans.filter((p) => p.name === tab)
-  const imageFor = (plan) => PLAN_IMAGES[plan.name] ?? FALLBACK_IMAGES[plans.indexOf(plan) % FALLBACK_IMAGES.length]
+  const imageFor = (plan) =>
+    plan.image_url ||
+    PLAN_IMAGES[plan.name] ||
+    FALLBACK_IMAGES[plans.indexOf(plan) % FALLBACK_IMAGES.length]
 
   return (
     <main className="max-w-5xl p-4 sm:p-6">
@@ -216,6 +386,7 @@ export default function Plans() {
             plan={plan}
             image={imageFor(plan)}
             onDetails={() => setSelected(plan)}
+            onEdit={() => setEditing(plan)}
           />
         ))}
       </div>
@@ -225,6 +396,8 @@ export default function Plans() {
         image={selected ? imageFor(selected) : null}
         onClose={() => setSelected(null)}
       />
+
+      {editing && <EditModal plan={editing} onClose={() => setEditing(null)} />}
     </main>
   )
 }
