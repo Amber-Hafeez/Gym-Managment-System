@@ -153,7 +153,7 @@ The frontend is deployed on Vercel. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_A
 
 ## 🧑‍💻 Developer
 
-Full-Stack Web Development Internship Project developed by **<Sawaiba Amber>**.
+Full-Stack Web Development Internship Project developed by **Sawaiba Amber**.
 
 ---
 
