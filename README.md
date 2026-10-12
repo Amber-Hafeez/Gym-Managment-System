@@ -1,178 +1,156 @@
-<div align="center">
+🏋️ Gym Management System
 
-# 🏋️ FITZONE
+💪 A Web-Based Solution for Modern Gym Management
 
-### Gym & Fitness Club Management System
+A web application designed to organize and simplify daily gym operations, including member management, membership plans, trainer records, class scheduling, bookings, and attendance tracking.
 
-A complete web app for gym front desks to manage members, membership plans, classes, attendance and payments.
+<p align="center">
+  <a href="https://gym-managment-system-zhlt.vercel.app/">
+    <img src="https://img.shields.io/badge/Live-Website-168C88?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Website"/>
+  </a>
+  <a href="https://github.com/Amber-Hafeez/Gym-Managment-System">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository"/>
+  </a>
+</p>---
 
-**[🌐 Live Demo](<https://gym-managment-system-zhlt.vercel.app/>)** · **[💻 GitHub](<https://github.com/Amber-Hafeez/Gym-Managment-System>)**
+📌 Project Information
 
-</div>
+Detail| Information
+📛 Project Name| Gym Management System
+👩‍💻 Developer| Sawaiba Amber
+🏢 Organization| FameByte Studio
+🌐 Project Type| Web Application
+🚀 Deployment| Vercel
+🗄️ Backend Service| Supabase
 
----
+🎯 Project Objectives
 
-## 📖 Overview
+The main objectives of this project are:
 
-FITZONE is a Pakistan-focused gym management system built as a 1-month Full-Stack Web Development Internship project. It replaces paper registers with a fast, responsive dashboard where the gym owner and trainers can run daily operations in one place.
+- 👥 Manage gym member information.
+- 💳 Organize membership plans.
+- 🧑‍🏫 Maintain trainer information.
+- 📅 Manage class schedules.
+- 📝 Support class booking workflows.
+- ✅ Track member attendance and check-ins.
+- 🔐 Provide authentication and protected routes.
+- 🌍 Make gym-management functionality accessible through a web browser.
 
----
+🛠️ Technologies Used
 
-## ✨ Features
+<p>
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"/>
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/>
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase"/>
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git"/>
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
+</p>- ⚛️ React: Component-based user interface.
+- ⚡ Vite: Frontend development and build tooling.
+- 🎨 Tailwind CSS: Styling and responsive layouts.
+- 🗄️ Supabase: Backend and database-related integration.
+- 🔧 Git: Version control.
+- 🐙 GitHub: Source-code hosting.
+- 🚀 Vercel: Website deployment and hosting.
 
-### 🔐 Authentication & Roles
-- Secure login with Supabase Auth (Admin and Trainer roles)
-- Trainer signup with admin approval (Approve / Reject)
-- Role-based sidebar and protected routes
+✨ Main Features and Modules
 
-### 👥 Member Management
-- Add, edit, view and delete members
-- Member photo upload
-- Search members by name or phone
-- Member profile with plan, attendance, payments and streak
+📊 1. Dashboard
 
-### 💳 Plans & Payments
-- Monthly, Quarterly, Half-Yearly and Yearly plans
-- Assign a plan with auto-calculated expiry date
-- Mark payments (Cash / Card) and renew plans
-- Full payment history per member
+Provides a central interface for navigating the application and accessing its main features.
 
-### 📅 Classes & Booking
-- Admin class schedule (create, edit, cancel)
-- Trainer "My Classes" view
-- Class booking with automatic waitlist
-- Waitlist auto-promotion when a booked member cancels
-- Live seat counts with Supabase Realtime
+👥 2. Member Management
 
-### ✅ Attendance
-- One-click member check-in
-- Expired members are blocked with a clear message
-- Attendance history on each profile
+Supports member-related operations, including viewing, adding, and editing member information where implemented.
 
-### 📊 Dashboard & Extras
-- Active members, expiring-in-7-days list, today's check-ins, monthly revenue
-- 🔥 Streak Tracker on member profiles
-- 🔔 Fee Reminder Banner when a plan expires within 3 days
-- Responsive landing page with plans, gallery, Login and Sign Up
+💳 3. Membership Plans
 
----
+Organizes membership plan information and related membership workflows.
 
-## 🛠️ Tech Stack
+🧑‍🏫 4. Trainer Management
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | React 19 + Vite |
-| Styling | Tailwind CSS v4 |
-| Backend & Database | Supabase (PostgreSQL) |
-| Authentication | Supabase Auth |
-| Security | Row-Level Security (RLS) |
-| Live updates | Supabase Realtime |
-| File storage | Supabase Storage |
-| Data fetching | TanStack Query |
-| Deployment | Vercel |
+Supports trainer records and trainer-related management operations.
 
----
+📅 5. Class Management
 
-## 👤 User Roles
+Organizes class schedules and class-related information.
 
-| Role | Access |
-| --- | --- |
-| Admin | Members, plans, classes, trainers, payments, attendance, dashboard |
-| Trainer | Own classes and class attendance |
+📝 6. Class Bookings
 
----
+Supports booking-related workflows for gym classes.
 
-## 🚀 Getting Started
+✅ 7. Attendance Management
 
-### 1. Clone the repository
+Provides member check-in functionality, including membership-validity checks where implemented.
 
-```bash
-git clone <your-github-repo-link>
-cd gym-management-system
-npm install
-```
+🔐 8. Authentication
 
-### 2. Add environment variables
+Includes login and protected-route functionality.
 
-Copy `.env.example` to `.env` and add your Supabase keys:
 
-```env
-VITE_SUPABASE_URL=your-supabase-project-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
+🧪 Testing and Quality Assurance
 
-### 3. Set up the database
+The application should be checked for:
 
-In the Supabase SQL Editor, run the files in `supabase/migrations/` in order, from `0001` to `0013`:
+- ✅ Correct website loading and navigation.
+- 🔐 Login and protected-route behavior.
+- 👥 Member-management workflows.
+- 💳 Membership-plan functionality.
+- 🧑‍🏫 Trainer and class-management operations.
+- 📝 Booking functionality.
+- 📋 Attendance and check-in behavior.
+- 🗄️ Successful backend requests.
+- 📱 Responsive design on mobile and desktop.
+- 🚀 Correct behavior of the deployed website.
 
-| Files | Contents |
-| --- | --- |
-| 0001 - 0007 | Tables (profiles, members, plans, classes, class_bookings, attendance, payments) |
-| 0008 | Storage bucket for member photos |
-| 0009 | Database functions |
-| 0010 | Row-Level Security policies |
-| 0011 | Triggers (plan end date, waitlist promotion) |
-| 0012 | Constraints |
-| 0013 | Admin check for trainer functions |
+🚀 Deployment
 
-### 4. Create the Admin account
+The project is deployed using Vercel.
 
-Create one user in Supabase Auth, then add its row in the `profiles` table with role `admin`.
+🌐 Live Website:
+gym-managment-system-rho.vercel.app
 
-### 5. Run the app
+🐙 GitHub Repository:
+https://github.com/Amber-Hafeez/Gym-Managment-System
 
-```bash
-npm run dev
-```
+Deployment Workflow
 
----
+1. 💻 Develop and test changes locally.
+2. 📤 Commit and push changes to GitHub.
+3. 🔗 Connect the repository to Vercel.
+4. ⚙️ Configure the required environment variables.
+5. 🚀 Deploy or redeploy the application.
+6. ✅ Test the live website and its main workflows.
 
-## 📁 Folder Structure
+🔮 Future Improvements
 
-```
-gym-management-system/
-├── src/
-│   ├── components/    reusable UI pieces
-│   ├── pages/         one folder per screen
-│   ├── hooks/         TanStack Query hooks
-│   └── lib/           supabaseClient.js
-├── supabase/
-│   └── migrations/    SQL files (tables, policies, functions, triggers)
-├── .env.example
-├── vercel.json
-└── README.md
-```
+Potential improvements include:
 
----
+- 📈 Advanced analytics and reports.
+- 👤 Enhanced user roles and permissions.
+- 🧪 Automated testing.
+- ♿ Improved accessibility.
+- 📱 Further responsive-design improvements.
+- 📊 Additional dashboard summaries.
 
-## ☁️ Deployment
+🏁 Conclusion
 
-The frontend is deployed on Vercel. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project's Environment Variables. `vercel.json` rewrites all routes to the app so page refresh works on every page.
+The Gym Management System provides a centralized web-based platform for organizing essential gym operations. It brings together member records, membership plans, trainer information, class schedules, bookings, and attendance functionality.
 
----
+Built with modern web technologies and deployed through Vercel, the project demonstrates practical experience in frontend development, backend integration, source-code management, and web deployment.
 
-## 🧑‍💻 Developer
+👩‍💻 Author
 
-Full-Stack Web Development Internship Project developed by **Sawaiba Amber**.
+Sawaiba Amber
+🏢 Organization: FameByte Studio
+
+🔗 GitHub:
+https://github.com/Amber-Hafeez/Gym-Managment-System
+
+🌐 Live Project:
+https://gym-managment-system-zhlt.vercel.app/
 
 ---
 
-## 📋 Developer Responsibilities
-
-- Frontend development.
-- Responsive UI implementation.
-- Supabase authentication and database setup.
-- Row-Level Security policies and database functions.
-- Real-time class booking with waitlist logic.
-- Image upload with Supabase Storage.
-- Testing and debugging.
-- GitHub version control.
-- Deployment and documentation.
-
----
-
-## 📄 License
-
-This project is developed for educational, internship, and portfolio purposes.
-
-License details may be updated in the future.
+⭐ Thank you for visiting the Gym Management System project!
