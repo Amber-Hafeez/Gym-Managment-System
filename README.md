@@ -109,7 +109,7 @@ The application should be checked for:
 The project is deployed using Vercel.
 
 🌐 Live Website:
-gym-managment-system-rho.vercel.app
+https://gym-managment-system-rho.vercel.app
 
 🐙 GitHub Repository:
 https://github.com/Amber-Hafeez/Gym-Managment-System
@@ -143,6 +143,7 @@ Built with modern web technologies and deployed through Vercel, the project demo
 👩‍💻 Author
 
 Sawaiba Amber
+
 🏢 Organization: FameByte Studio
 
 🔗 GitHub:
